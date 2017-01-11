@@ -1,0 +1,165 @@
+
+observe <- function()
+{
+
+
+colors <- c("Blue","Red","Pink","Violet","Green")
+givenFunction <- function(a)
+{ 
+	(2 * cos(2.8 * a) + 7.5 )
+}
+
+
+functionWithNoise <- function(a)
+{ 
+	(2 * cos(2.8 * a) + 7.5 ) + pnorm( sample( seq(-3.4,3.4,0.01) ,1) ,0,1)
+}
+
+
+
+xVals <- seq(0,5,0.25)[1:20]
+
+yVals <- matrix(ncol = 20, nrow = 0)
+for(i in seq(1,100,1))
+{
+yVals <- rbind(yVals,(functionWithNoise(xVals)))
+}
+
+averageY <- colMeans(yVals)
+
+
+dev.new()
+plot(xVals,yVals[1,])
+for(i in c(1:5))
+{
+	polFit1 <- lm(yVals[i,] ~ xVals)
+	lines(xVals,as.vector(predict(polFit1,as.data.frame(xVals))),col=colors[i])
+}
+polFit1_avg <- lm(averageY ~ xVals)
+lines(xVals,as.vector(predict(polFit1_avg,as.data.frame(xVals))), pch=22, lty=2,col="Black")
+
+
+
+dev.new()
+plot(xVals,yVals[1,])
+for(i in c(1:5))
+{
+	polFit2 <- lm(yVals[i,] ~ xVals + I(xVals^2))
+	lines(xVals,as.vector(predict(polFit2,as.data.frame(xVals))),col=colors[i])
+}
+polFit2_avg <- lm(averageY ~ xVals + I(xVals^2))
+lines(xVals,as.vector(predict(polFit2_avg,as.data.frame(xVals))), pch=22, lty=2,col="Black")
+
+
+dev.new()
+plot(xVals,yVals[1,])
+for(i in c(1:5))
+{
+	polFit3 <- lm(yVals[i,] ~ xVals + I(xVals^2) + I(xVals^3))
+	lines(xVals,as.vector(predict(polFit3,as.data.frame(xVals))),col=colors[i])
+}
+polFit3_avg <- lm(averageY ~ xVals + I(xVals^2) + I(xVals^3))
+lines(xVals,as.vector(predict(polFit3_avg,as.data.frame(xVals))), pch=22, lty=2,col="Black")
+
+
+
+dev.new()
+plot(xVals,yVals[1,])
+for(i in c(1:5))
+{
+	polFit4 <- lm(yVals[i,] ~ xVals + I(xVals^2) + I(xVals^3) + I(xVals^4))
+	lines(xVals,as.vector(predict(polFit4,as.data.frame(xVals))),col=colors[i])
+}
+polFit4_avg <- lm(averageY ~ xVals + I(xVals^2) + I(xVals^3) + I(xVals^4))
+lines(xVals,as.vector(predict(polFit4_avg,as.data.frame(xVals))), pch=22, lty=2,col="Black")
+
+
+
+dev.new()
+plot(xVals,yVals[1,])
+for(i in c(1:5))
+{
+	polFit5 <- lm(yVals[i,] ~ xVals + I(xVals^2) + I(xVals^3) +I(xVals^4) +I(xVals^5))
+	lines(xVals,as.vector(predict(polFit5,as.data.frame(xVals))),col=colors[i])
+}
+polFit5_avg <- lm(averageY ~ xVals + I(xVals^2) + I(xVals^3) +I(xVals^4) +I(xVals^5))
+lines(xVals,as.vector(predict(polFit5_avg,as.data.frame(xVals))), pch=22, lty=2,col="Black")
+
+
+
+biasSquare <- 0
+biasSquare <- c(biasSquare, mean(((predict(polFit1_avg,as.data.frame(xVals)))-givenFunction(xVals))^2))
+biasSquare <- c(biasSquare, mean(((predict(polFit2_avg,as.data.frame(xVals)))-givenFunction(xVals))^2))
+biasSquare <- c(biasSquare, mean(((predict(polFit3_avg,as.data.frame(xVals)))-givenFunction(xVals))^2))
+biasSquare <- c(biasSquare, mean(((predict(polFit4_avg,as.data.frame(xVals)))-givenFunction(xVals))^2))
+biasSquare <- c(biasSquare, mean(((predict(polFit5_avg,as.data.frame(xVals)))-givenFunction(xVals))^2))
+biasSquare <- biasSquare[2:6]
+
+
+Variance <- 0
+predictedVar1 <- data.frame()
+Avg1 <- predict(polFit1_avg,as.data.frame(xVals))
+for(i in c(1:100))
+{
+     polFit1 <- lm(yVals[i,] ~ xVals)
+     predictedVar1 <- rbind(predictedVar1, (predict(polFit1,as.data.frame(xVals)) - Avg1)^2 )
+}
+Variance <-c(Variance,mean(as.matrix(predictedVar1)))
+
+
+
+predictedVar2 <- data.frame()
+Avg2 <- predict(polFit2_avg,as.data.frame(xVals))
+for(i in c(1:100))
+{
+     polFit2 <- lm(yVals[i,] ~ xVals)
+     predictedVar2 <- rbind(predictedVar2, (predict(polFit2,as.data.frame(xVals)) - Avg2)^2 )
+}
+Variance <-c(Variance,mean(as.matrix(predictedVar2)))
+
+
+predictedVar3 <- data.frame()
+Avg3 <- predict(polFit3_avg,as.data.frame(xVals))
+for(i in c(1:100))
+{
+     polFit3 <- lm(yVals[i,] ~ xVals)
+     predictedVar3 <- rbind(predictedVar3, (predict(polFit3,as.data.frame(xVals)) - Avg3)^2 )
+}
+Variance <-c(Variance,mean(as.matrix(predictedVar3)))
+
+
+
+predictedVar4 <- data.frame()
+Avg4 <- predict(polFit4_avg,as.data.frame(xVals))
+for(i in c(1:100))
+{
+     polFit4 <- lm(yVals[i,] ~ xVals)
+     predictedVar4 <- rbind(predictedVar4, (predict(polFit4,as.data.frame(xVals)) - Avg4)^2 )
+}
+Variance <-c(Variance,mean(as.matrix(predictedVar4)))
+
+
+predictedVar5 <- data.frame()
+Avg5 <- predict(polFit5_avg,as.data.frame(xVals))
+for(i in c(1:100))
+{
+     polFit5 <- lm(yVals[i,] ~ xVals)
+     predictedVar5 <- rbind(predictedVar5, (predict(polFit5,as.data.frame(xVals)) - Avg5)^2 )
+}
+Variance <-c(Variance,mean(as.matrix(predictedVar5)))
+
+
+
+Variance <- Variance[2:6]
+
+Error <- Variance + biasSquare
+
+Bias <- sqrt(biasSquare)
+
+
+plot(c(0,5),c(0,max(Error)))
+lines(x = c(1:5),y = Bias,col="Blue")
+lines(x = c(1:5),y = Variance,col="Red")
+lines(x = c(1:5),y = Error,col="Black")
+
+}
